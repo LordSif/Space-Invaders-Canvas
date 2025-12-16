@@ -1,0 +1,32 @@
+body{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #333;
+  margin: 0;
+  color: white;
+  font-family: Arial, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+canvas {
+  background: #000;
+  border: 2px solid white;
+}
+.controls {
+  margin-top: 10px;
+}
+.control-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 0px 5px;
+  user-select: none;
+}
+#scoreBoard {
+  margin-top: 10px;
+  font-size: 1.2rem;
+}
