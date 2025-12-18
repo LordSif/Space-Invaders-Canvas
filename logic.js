@@ -17,12 +17,17 @@ const player = {
 
 // Enemy Object (Extraterrestres xd)
 const enemies = []
-//setInterval(spawnEnemy, 1000)
+setInterval(spawnEnemy, 1000)
+
+// Bullets Object
+const bullets = []
+setInterval(fireBullet, 500)
 
 // Input Tracking
 let leftPressed = false
 let rightPressed = false
 
+// Keyboard Input
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') leftPressed = true
   if (e.key === 'ArrowRight') rightPressed = true
@@ -32,34 +37,136 @@ document.addEventListener('keyup', e => {
   if (e.key === 'ArrowRight') rightPressed = false
 })
 
+// Button Input
+leftBtn.addEventListener('touchstart', () => leftPressed = true)
+leftBtn.addEventListener('touchend', () => leftPressed = false)
+rightBtn.addEventListener('touchstart', () => rightPressed = true)
+rightBtn.addEventListener('touchend', () => rightPressed = false)
 
+// Mouse Input
+leftBtn.addEventListener('mousedown', () => leftPressed = true)
+leftBtn.addEventListener('mouseup', () => leftPressed = false)
+rightBtn.addEventListener('mousedown', () => rightPressed = true)
+rightBtn.addEventListener('mouseup', () => rightPressed = false)
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-  // Draw Player (Navecita)
-  ctx.fillStyle = '#0095DD';
-  ctx.fillRect(player.x, player.y, player.width, player.height)
+// Fire Bullet
+function fireBullet() {
+  bullets.push({
+    x: player.x + player.width / 2 - 2,
+    y: player.y - 10,
+    width: 4,
+    height: 10,
+    speed: 7
+  })
 }
+
+// Spawn Enemy
+function spawnEnemy() {
+  const enemyWidth = 30
+  enemies.push({
+    x: Math.random() * (canvas.width - enemyWidth),
+    y: 0,
+    width: enemyWidth,
+    height: 20,
+    speed: 2
+  })
+}
+
+// Collision Detection AABB algorithm
+
+function isColliding(rect1, rect2) {
+  return rect1.x < rect2.x + rect2.width &&
+         rect1.x + rect1.width > rect2.x &&
+         rect1.y < rect2.y + rect2.height &&
+         rect1.y + rect1.height > rect2.y
+}
+
+
+
+
 
 // Logic for game
 function update() {
   // Move player
   if (leftPressed) player.x = Math.max(0, player.x - player.speed)
   if (rightPressed) player.x = Math.min(canvas.width - player.width, player.x + player.speed)
-}
-  /* 
-  # requestAnimationFrame(function);
-  
-  Función de JavaScript que le dice al navegador que quieres
-  hacer una animación, solicitando que ejecute una función específica
-  (callback) antes del siguiente repintado de la pantalla,
-  sincronizándose con la tasa de refresco del monitor */
-  function gameLoop() {
-    update()
-    draw()
-    requestAnimationFrame(gameLoop)
+
+  // Move bullets
+  for (let i = 0; i < bullets.length; i++) {
+    bullets[i].y -= bullets[i].speed
+    if (bullets[i].y < 0) {
+      bullets.splice(i, 1)
+      i--
+    }
   }
 
-  gameLoop();
+  // Move enemies
+  for (let i = 0; i < enemies.length; i++) {
+    enemies[i].y += enemies[i].speed
+    if (enemies[i].y > canvas.height) {
+      enemies.splice(i, 1)
+      i--
+      //console.log('Game Over!')
+      //document.location.reload()
+    }
+  }
+
+  // Collision detection between bullets and enemies
+  for (let i = 0; i < bullets.length; i++) {
+    for (let j = 0; j < enemies.length; j++) {
+      if (isColliding(bullets[i], enemies[j])) {
+        bullets.splice(i, 1)
+        enemies.splice(j, 1)
+        score += 10
+        scoreBoard.textContent = "Te amo: " + score + " veces"
+        i--
+      }
+    }
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw Player (Navecita)
+  ctx.fillStyle = '#0095DD';
+  ctx.fillRect(player.x, player.y, player.width, player.height)
+
+  // Draw bullets
+  ctx.fillStyle = '#FF0000'
+  bullets.forEach(bullet => {
+    ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
+  })
+
+  // Draw enemies (Extraterrestres xd)
+  ctx.fillStyle = '#27ae60'
+  enemies.forEach(enemy => {
+    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+  })
+}
+
+function gameLoop() {
+  update()
+  draw()
+  requestAnimationFrame(gameLoop)
+}
+
+gameLoop();
+
+/* 
+# requestAnimationFrame(function);
+ 
+Función de JavaScript que le dice al navegador que quieres
+hacer una animación, solicitando que ejecute una función específica
+(callback) antes del siguiente repintado de la pantalla,
+sincronizándose con la tasa de refresco del monitor
+
+# function isColliding(rect1, rect2) { ... }
+
+Esta función utiliza un algoritmo llamado AABB (Axis-Aligned Bounding Box).
+Su objetivo es verificar si dos rectángulos se están tocando o solapando
+en un espacio de 2D.
+
+
+*/
 
