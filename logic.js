@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d')
 const leftBtn = document.getElementById('leftBtn')
 const rightBtn = document.getElementById('rightBtn')
 const scoreBoard = document.getElementById('scoreBoard')
-
+const explosionSound = new Audio('explosion1.mp3')
 let score = 0
 
 // Player Object (Navecita)
@@ -118,8 +118,11 @@ function update() {
         bullets.splice(i, 1)
         enemies.splice(j, 1)
         score += 10
-        scoreBoard.textContent = "Te amo: " + score + " veces"
+        scoreBoard.textContent = "Score: " + score
+        explosionSound.currentTime = 0
+        explosionSound.play()
         i--
+        break
       }
     }
   }
