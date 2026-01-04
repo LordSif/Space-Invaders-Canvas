@@ -5,11 +5,30 @@ const rightBtn = document.getElementById('rightBtn')
 const scoreBoard = document.getElementById('scoreBoard')
 const explosionSound = new Audio('explosion1.mp3')
 const healSound = new Audio('heal1.mp3')
+const hitSound = new Audio('hit2.mp3')
+const CombatMusic = new Audio('combat-music1.m4a')
 const livesBoard = document.getElementById('livesBoard')
+
+CombatMusic.loop = true
+CombatMusic.volume = 0.5
 
 let score = 0
 let lives = 3
+let healTimer = 0
+let gameStarted = false
 
+function startAudio() {
+  if (!gameStarted) {
+    CombatMusic.play()
+    gameStarted = true
+  }
+}
+
+document.addEventListener('click', startAudio)
+document.addEventListener('touchstart', startAudio)
+document.addEventListener('mousemove', startAudio)
+document.addEventListener('keydown', startAudio)
+document.addEventListener('mousedown', startAudio)
 // Player Object (Navecita)
 const player = {
   x: canvas.width / 2 - 15,
@@ -30,6 +49,12 @@ setInterval(fireBullet, 500)
 // Lives Object
 const livesObj = []
 setInterval(spawnLivesObj, 15000)
+
+// Explosion Effect
+const explosions = []
+
+// Health Effect
+const healing = []
 
 // Input Tracking
 let leftPressed = false
@@ -92,6 +117,36 @@ function spawnLivesObj() {
 
 }
 
+// Explosion Effect
+function createExplosion(x, y) {
+  const particles = 15
+  for (let i = 0; i < particles; i++) {
+    explosions.push({
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      size: Math.random() * 4 + 1,
+      //radius: Math.random() * 3 + 2,
+      time: 30,
+    })
+  }
+}
+
+function HealEffect(x, y){
+  const particle = 10
+  for (let i = 0; i < particle; i++) {
+    healing.push({
+      x: x + (Math.random() - 0.5) * 20,
+      y: y,
+      vx: (Math.random() - 0.5) * 2,
+      vy: - (Math.random() * 3 - 1),
+      size: Math.random() * 5 + 4,
+      life: 40,
+    })
+  }
+}
+
 // Collision Detection AABB algorithm
 function isColliding(rect1, rect2) {
   return rect1.x < rect2.x + rect2.width &&
@@ -106,6 +161,7 @@ function updateLivesBoard(value) {
   if (lives > 5) lives = 5
   livesBoard.textContent = "Lives: " + lives
   if (lives < 0) {
+    CombatMusic.pause()
     alert("Game Over! Your final score is: " + score)
     document.location.reload()
   }
@@ -131,6 +187,8 @@ function update() {
     if (isColliding(player, enemies[i])) {
       enemies.splice(i, 1)
       i--
+      hitSound.currentTime = 0
+      hitSound.play()
       updateLivesBoard(-1)
       continue
     }
@@ -138,6 +196,7 @@ function update() {
       enemies.splice(i, 1)
       i--
       updateLivesBoard(-1)
+      console.log("Enemy passed! Lives left: " + lives)
     }
   }
 
@@ -145,6 +204,8 @@ function update() {
   for (let i = 0; i < livesObj.length; i++) {
     livesObj[i].y += livesObj[i].speed
     if (isColliding(player, livesObj[i])) {
+      HealEffect(player.x + player.width / 2, player.y)
+      healTimer = 20
       livesObj.splice(i, 1)
       i--
       healSound.currentTime = 0
@@ -159,10 +220,15 @@ function update() {
 
   }
 
+  if (healTimer > 0) {
+    healTimer--
+  }
+
   // Collision detection between bullets and enemies
   for (let i = 0; i < bullets.length; i++) {
     for (let j = 0; j < enemies.length; j++) {
       if (isColliding(bullets[i], enemies[j])) {
+        createExplosion(enemies[j].x + enemies[j].width / 2, enemies[j].y)
         bullets.splice(i, 1)
         enemies.splice(j, 1)
         score += 10
@@ -174,15 +240,53 @@ function update() {
       }
     }
   }
+
+  // Explosion update
+  for (let i = 0; i < explosions.length; i++) {
+    const particle = explosions[i]
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.time--
+
+    if (particle.time <= 0) {
+      explosions.splice(i, 1)
+      i--
+    }
+  }
+
+  // Healing effect update
+  for (let i = 0; i < healing.length; i++) {
+    const particle = healing[i]
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.life--
+
+    if (particle.life <= 0) {
+      healing.splice(i, 1)
+      i--
+    }
+
+  }
+
+
+
+
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw Player (Navecita)
-  ctx.fillStyle = '#0095DD';
+  if (healTimer > 0) {
+    ctx.fillStyle = 'white'
+    ctx.shadowBlur = 100
+    ctx.shadowColor = '#00ff88'
+  } else {
+    ctx.fillStyle = '#0095DD'
+    ctx.shadowBlur = 0
+  }
   ctx.fillRect(player.x, player.y, player.width, player.height)
-
+  ctx.shadowBlur = 0
   // Draw bullets
   ctx.fillStyle = '#FF0000'
   bullets.forEach(bullet => {
@@ -200,9 +304,26 @@ function draw() {
   livesObj.forEach(live => {
     ctx.fillRect(live.x, live.y, live.width, live.height)
   })
+
+  // Draw explosions
+  ctx.fillStyle = '#fcff34ff'
+  explosions.forEach(particle => {
+    ctx.globalAlpha = particle.time / 30
+    ctx.fillRect(particle.x, particle.y, particle.size, particle.size)
+
+  })
+  ctx.globalAlpha = 1
+
+  // Draw healing effects
+  ctx.fillStyle = '#00ff88'
+  healing.forEach(particle => {
+    ctx.globalAlpha = particle.life / 40
+    ctx.fillRect(particle.x, particle.y - particle.size/2, 2, particle.size)
+    ctx.fillRect(particle.x - particle.size/2, particle.y, particle.size, 2)
+  })
+  ctx.globalAlpha = 1
+
 }
-
-
 
 function gameLoop() {
   update()
