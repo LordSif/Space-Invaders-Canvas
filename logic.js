@@ -4,7 +4,11 @@ const leftBtn = document.getElementById('leftBtn')
 const rightBtn = document.getElementById('rightBtn')
 const scoreBoard = document.getElementById('scoreBoard')
 const explosionSound = new Audio('explosion1.mp3')
+const healSound = new Audio('heal1.mp3')
+const livesBoard = document.getElementById('livesBoard')
+
 let score = 0
+let lives = 3
 
 // Player Object (Navecita)
 const player = {
@@ -22,6 +26,10 @@ setInterval(spawnEnemy, 1000)
 // Bullets Object
 const bullets = []
 setInterval(fireBullet, 500)
+
+// Lives Object
+const livesObj = []
+setInterval(spawnLivesObj, 15000)
 
 // Input Tracking
 let leftPressed = false
@@ -72,19 +80,36 @@ function spawnEnemy() {
   })
 }
 
-// Collision Detection AABB algorithm
+function spawnLivesObj() {
+  const lifeWidth = 10
+  livesObj.push({
+    x: Math.random() * (canvas.width - lifeWidth),
+    y: 0,
+    width: lifeWidth,
+    height: lifeWidth,
+    speed: 1.5
+  })
 
-function isColliding(rect1, rect2) {
-  return rect1.x < rect2.x + rect2.width &&
-         rect1.x + rect1.width > rect2.x &&
-         rect1.y < rect2.y + rect2.height &&
-         rect1.y + rect1.height > rect2.y
 }
 
+// Collision Detection AABB algorithm
+function isColliding(rect1, rect2) {
+  return rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y
+}
 
-
-
-
+// Update Lives Board
+function updateLivesBoard(value) {
+  lives += value
+  if (lives > 5) lives = 5
+  livesBoard.textContent = "Lives: " + lives
+  if (lives < 0) {
+    alert("Game Over! Your final score is: " + score)
+    document.location.reload()
+  }
+}
 // Logic for game
 function update() {
   // Move player
@@ -103,12 +128,35 @@ function update() {
   // Move enemies
   for (let i = 0; i < enemies.length; i++) {
     enemies[i].y += enemies[i].speed
+    if (isColliding(player, enemies[i])) {
+      enemies.splice(i, 1)
+      i--
+      updateLivesBoard(-1)
+      continue
+    }
     if (enemies[i].y > canvas.height) {
       enemies.splice(i, 1)
       i--
-      //console.log('Game Over!')
-      //document.location.reload()
+      updateLivesBoard(-1)
     }
+  }
+
+  // Move lives objects
+  for (let i = 0; i < livesObj.length; i++) {
+    livesObj[i].y += livesObj[i].speed
+    if (isColliding(player, livesObj[i])) {
+      livesObj.splice(i, 1)
+      i--
+      healSound.currentTime = 0
+      healSound.play()
+      updateLivesBoard(1)
+      continue
+    }
+    if (livesObj[i].y > canvas.height) {
+      livesObj.splice(i, 1)
+      i--
+    }
+
   }
 
   // Collision detection between bullets and enemies
@@ -146,7 +194,15 @@ function draw() {
   enemies.forEach(enemy => {
     ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
   })
+
+  // Draw lives objects
+  ctx.fillStyle = '#93f3d6ff'
+  livesObj.forEach(live => {
+    ctx.fillRect(live.x, live.y, live.width, live.height)
+  })
 }
+
+
 
 function gameLoop() {
   update()
