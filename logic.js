@@ -56,6 +56,10 @@ const explosions = []
 // Health Effect
 const healing = []
 
+// Stars
+const stars = []
+const numStars = 100
+
 // Input Tracking
 let leftPressed = false
 let rightPressed = false
@@ -93,6 +97,15 @@ function fireBullet() {
   })
 }
 
+// Starfield Effect
+for (let i = 0; i < numStars; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2,
+    speed: Math.random() * 2 + 0.5
+  })
+}
 // Spawn Enemy
 function spawnEnemy() {
   const enemyWidth = 30
@@ -108,6 +121,7 @@ function spawnEnemy() {
 function spawnLivesObj() {
   const lifeWidth = 10
   livesObj.push({
+
     x: Math.random() * (canvas.width - lifeWidth),
     y: 0,
     width: lifeWidth,
@@ -133,7 +147,7 @@ function createExplosion(x, y) {
   }
 }
 
-function HealEffect(x, y){
+function HealEffect(x, y) {
   const particle = 10
   for (let i = 0; i < particle; i++) {
     healing.push({
@@ -160,7 +174,8 @@ function updateLivesBoard(value) {
   lives += value
   if (lives > 5) lives = 5
   livesBoard.textContent = "Lives: " + lives
-  if (lives < 0) {
+  if (lives <= 0) {
+    CombatMusic.currentTime = 0
     CombatMusic.pause()
     alert("Game Over! Your final score is: " + score)
     document.location.reload()
@@ -217,9 +232,8 @@ function update() {
       livesObj.splice(i, 1)
       i--
     }
-
   }
-
+  // Heal timer update
   if (healTimer > 0) {
     healTimer--
   }
@@ -265,16 +279,30 @@ function update() {
       healing.splice(i, 1)
       i--
     }
-
   }
 
+  // Starfield update
+  stars.forEach(star => {
+    star.y += star.speed
+    if (star.y > canvas.height) {
+      star.y = 0
+      star.x = Math.random() * canvas.width
+    }
+  })
 
 
 
 }
 
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw stars
+  ctx.fillStyle = 'white'
+  stars.forEach(star => {
+    ctx.fillRect(star.x, star.y, star.size, star.size)
+  })
 
   // Draw Player (Navecita)
   if (healTimer > 0) {
@@ -287,6 +315,7 @@ function draw() {
   }
   ctx.fillRect(player.x, player.y, player.width, player.height)
   ctx.shadowBlur = 0
+
   // Draw bullets
   ctx.fillStyle = '#FF0000'
   bullets.forEach(bullet => {
@@ -318,8 +347,8 @@ function draw() {
   ctx.fillStyle = '#00ff88'
   healing.forEach(particle => {
     ctx.globalAlpha = particle.life / 40
-    ctx.fillRect(particle.x, particle.y - particle.size/2, 2, particle.size)
-    ctx.fillRect(particle.x - particle.size/2, particle.y, particle.size, 2)
+    ctx.fillRect(particle.x, particle.y - particle.size / 2, 2, particle.size)
+    ctx.fillRect(particle.x - particle.size / 2, particle.y, particle.size, 2)
   })
   ctx.globalAlpha = 1
 
