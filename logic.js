@@ -8,7 +8,8 @@ const healSound = new Audio('heal1.mp3')
 const hitSound = new Audio('hit2.mp3')
 const CombatMusic = new Audio('combat-music1.m4a')
 const livesBoard = document.getElementById('livesBoard')
-
+const damageOverlay = document.getElementById('damageOverlay')
+const gameOverSound = new Audio('game-over3.mp3')
 CombatMusic.loop = true
 CombatMusic.volume = 0.5
 
@@ -16,6 +17,8 @@ let score = 0
 let lives = 3
 let healTimer = 0
 let gameStarted = false
+let isGameActive = true
+
 
 function startAudio() {
   if (!gameStarted) {
@@ -171,16 +174,42 @@ function isColliding(rect1, rect2) {
 
 // Update Lives Board
 function updateLivesBoard(value) {
+  console.log("Veces en ejecutarse")
+
+  if (value < 0) {
+    damageOverlay.classList.add('animate-flash')
+    setTimeout(() => damageOverlay.classList.remove('animate-flash'), 400)
+  }
   lives += value
   if (lives > 5) lives = 5
-  livesBoard.textContent = "Lives: " + '❤'.repeat(lives)
+  livesBoard.innerHTML = ""
+
+  const label = document.createElement('span')
+  label.textContent = "Lives: "
+  livesBoard.appendChild(label)
+
+  for (let i = 0; i < lives; i++) {
+    const heartImg = document.createElement('img')
+    heartImg.src = "heart1.png"
+    heartImg.classList.add("heart-icon")
+    livesBoard.appendChild(heartImg)
+  }
+
   if (lives <= 0) {
+    console.log("Game Over!")
+    isGameActive = false
+    setTimeout(() => damageOverlay.classList.add('animate-flash'), 1000)
+    canvas.style.filter = 'grayscale(100%) blur(2px) brightness(0.5)'
     CombatMusic.currentTime = 0
     CombatMusic.pause()
-    alert("Game Over! Your final score is: " + score)
-    document.location.reload()
+    gameOverSound.play()
+    setTimeout(() => {
+      alert("Game Over! Your final score is: " + score)
+      document.location.reload()
+    }, 1500)
   }
 }
+
 // Logic for game
 function update() {
   // Move player
@@ -358,10 +387,13 @@ function draw() {
 }
 
 function gameLoop() {
+  if (!isGameActive) return
   update()
   draw()
   requestAnimationFrame(gameLoop)
 }
+
+window.onload = updateLivesBoard(0)
 
 gameLoop();
 
