@@ -1,4 +1,4 @@
-body{
+body {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -12,13 +12,21 @@ body{
   user-select: none;
   touch-action: manipulation;
 }
+
 canvas {
   background: #000;
   border: 2px solid white;
 }
+
+#gameContainer {
+  position: relative;
+  display: inline-block;
+}
+
 .controls {
   margin-top: 10px;
 }
+
 .control-btn {
   padding: 10px 20px;
   font-size: 1rem;
@@ -27,11 +35,19 @@ canvas {
   -webkit-user-select: none;
   user-select: none;
 }
+
 #scoreBoard {
-  margin-top: 10px;
-  font-size: 1.2rem;
+  position: absolute;
+  top: -30px;
+  right: 10px;
+  margin: 8px;
 }
+
 #livesBoard {
-  margin-top: 10px;
-  font-size: 1.2rem;
+  position: absolute;
+  top: -30px;
+  left: 10px;
+  display: flex;
+  gap: 5px;
+  margin: 8px;
 }

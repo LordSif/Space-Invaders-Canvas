@@ -102,7 +102,7 @@ for (let i = 0; i < numStars; i++) {
   stars.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    size: Math.random() * 2,
+    size: Math.random() * 1.5,
     speed: Math.random() * 2 + 0.5
   })
 }
@@ -173,7 +173,7 @@ function isColliding(rect1, rect2) {
 function updateLivesBoard(value) {
   lives += value
   if (lives > 5) lives = 5
-  livesBoard.textContent = "Lives: " + lives
+  livesBoard.textContent = "Lives: " + '❤'.repeat(lives)
   if (lives <= 0) {
     CombatMusic.currentTime = 0
     CombatMusic.pause()
@@ -299,9 +299,12 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Draw stars
-  ctx.fillStyle = 'white'
   stars.forEach(star => {
-    ctx.fillRect(star.x, star.y, star.size, star.size)
+    const flicker = 0.5 + Math.random() * 0.5
+    ctx.fillStyle = `rgba(255, 255, 255, ${flicker})`
+    ctx.beginPath()
+    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2)
+    ctx.fill()
   })
 
   // Draw Player (Navecita)

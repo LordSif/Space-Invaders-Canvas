@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Space Invaders</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <canvas id="gameCanvas" width="400" height="400" ></canvas>
-  <div id="scoreBoard">Score: 0</div>
-  <div id="livesBoard">Lives: 3</div>
+  <div id="gameContainer">
+    <div id="scoreBoard">Score: 0</div>
+    <div id="livesBoard">Lives: ❤❤❤</div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+  </div>
   <div class="controls">
     <button id="leftBtn" class="control-btn">Left</button>
     <button id="rightBtn" class="control-btn">Right</button>
   </div>
   <script src="logic.js"></script>
 </body>
+
 </html>
