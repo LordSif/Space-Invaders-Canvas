@@ -9,16 +9,18 @@ const hitSound = new Audio('hit2.mp3')
 const CombatMusic = new Audio('combat-music1.m4a')
 const livesBoard = document.getElementById('livesBoard')
 const damageOverlay = document.getElementById('damageOverlay')
+const gameContainer = document.getElementById('gameContainer')
 const gameOverSound = new Audio('game-over3.mp3')
+
 CombatMusic.loop = true
-CombatMusic.volume = 0.5
+CombatMusic.volume = 0.6
 
 let score = 0
 let lives = 3
 let healTimer = 0
+let damageTimer = 0
 let gameStarted = false
 let isGameActive = true
-
 
 function startAudio() {
   if (!gameStarted) {
@@ -32,13 +34,22 @@ document.addEventListener('touchstart', startAudio)
 document.addEventListener('mousemove', startAudio)
 document.addEventListener('keydown', startAudio)
 document.addEventListener('mousedown', startAudio)
+
 // Player Object (Navecita)
 const player = {
   x: canvas.width / 2 - 15,
   y: canvas.height - 30,
   width: 30,
-  height: 10,
+  height: 15,
   speed: 5
+}
+
+// Shooting Star Object
+let shootingStar = {
+  x: 0,
+  y: 0,
+  speed: 0,
+  active: false
 }
 
 // Enemy Object (Extraterrestres xd)
@@ -121,6 +132,7 @@ function spawnEnemy() {
   })
 }
 
+// Spawn Lives Object
 function spawnLivesObj() {
   const lifeWidth = 10
   livesObj.push({
@@ -150,6 +162,7 @@ function createExplosion(x, y) {
   }
 }
 
+// Healing Effect
 function HealEffect(x, y) {
   const particle = 10
   for (let i = 0; i < particle; i++) {
@@ -179,6 +192,8 @@ function updateLivesBoard(value) {
   if (value < 0) {
     damageOverlay.classList.add('animate-flash')
     setTimeout(() => damageOverlay.classList.remove('animate-flash'), 400)
+    gameContainer.classList.add('shake-effect')
+    setTimeout(() => gameContainer.classList.remove('shake-effect'), 200)
   }
   lives += value
   if (lives > 5) lives = 5
@@ -229,6 +244,7 @@ function update() {
   for (let i = 0; i < enemies.length; i++) {
     enemies[i].y += enemies[i].speed
     if (isColliding(player, enemies[i])) {
+      damageTimer = 15
       enemies.splice(i, 1)
       i--
       hitSound.currentTime = 0
@@ -244,7 +260,12 @@ function update() {
     }
   }
 
-  // Move lives objects
+  // Damage timer update
+  if (damageTimer > 0) {
+    damageTimer--
+  }
+
+  // Move lives
   for (let i = 0; i < livesObj.length; i++) {
     livesObj[i].y += livesObj[i].speed
     if (isColliding(player, livesObj[i])) {
@@ -262,7 +283,7 @@ function update() {
       i--
     }
   }
-  // Heal timer update
+  // Healing timer update
   if (healTimer > 0) {
     healTimer--
   }
@@ -319,10 +340,23 @@ function update() {
     }
   })
 
+  // Shooting star update
+  if (!shootingStar.active && Math.random() < 0.01) {
+    shootingStar.active = true
+    shootingStar.x += Math.random() * canvas.width
+    shootingStar.y = -10
+    shootingStar.speed = Math.random() * 10 + 10
+  }
 
+  if (shootingStar.active) {
+    shootingStar.y += shootingStar.speed
+    shootingStar.x -= shootingStar.speed / 2
 
+    if (shootingStar.y > canvas.height || shootingStar.x < 0) {
+      shootingStar.active = false
+    }
+  }
 }
-
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -336,17 +370,38 @@ function draw() {
     ctx.fill()
   })
 
-  // Draw Player (Navecita)
-  if (healTimer > 0) {
-    ctx.fillStyle = 'white'
-    ctx.shadowBlur = 100
-    ctx.shadowColor = '#00ff88'
-  } else {
-    ctx.fillStyle = '#0095DD'
-    ctx.shadowBlur = 0
+  // Draw shooting star
+  if (shootingStar.active) {
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(shootingStar.x, shootingStar.y)
+    ctx.lineTo(shootingStar.x + 15, shootingStar.y - 25)
+    ctx.stroke()
   }
-  ctx.fillRect(player.x, player.y, player.width, player.height)
-  ctx.shadowBlur = 0
+
+  // Draw Player (Navecita)
+  let gradient = ctx.createLinearGradient(0, player.y, 0, player.y + player.height)
+  gradient.addColorStop(0, '#00d4ff')
+  gradient.addColorStop(1, '#0055ff')
+
+  ctx.fillStyle = gradient
+
+  if (damageTimer > 0) {
+    ctx.fillStyle = '#FF0000'
+  } else if (healTimer > 0) {
+    ctx.fillStyle = 'white'
+  } else {
+    ctx.fillStyle = gradient
+  }
+  
+  ctx.beginPath()
+  ctx.moveTo(player.x + player.width / 2, player.y)
+  ctx.lineTo(player.x + player.width, player.y + player.height)
+  ctx.lineTo(player.x + player.width / 2, player.y + player.height - 5)
+  ctx.lineTo(player.x, player.y + player.height)
+  ctx.closePath()
+  ctx.fill()
 
   // Draw bullets
   ctx.fillStyle = '#FF0000'
@@ -354,10 +409,20 @@ function draw() {
     ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
   })
 
-  // Draw enemies (Extraterrestres xd)
-  ctx.fillStyle = '#27ae60'
+  // Draw enemies
   enemies.forEach(enemy => {
-    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+    ctx.fillStyle = enemy.color || '#27ae60'
+
+    ctx.beginPath()
+    ctx.arc(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width / 2, Math.PI, 0)
+    ctx.lineTo(enemy.x + enemy.width, enemy.y + enemy.height)
+    ctx.lineTo(enemy.x, enemy.y + enemy.height)
+    ctx.fill()
+
+    ctx.fillStyle = 'white'
+    ctx.fillRect(enemy.x + enemy.width * 0.25, enemy.y + enemy.height * 0.3, 3, 3)
+    ctx.fillRect(enemy.x + enemy.width * 0.65, enemy.y + enemy.height * 0.3, 3, 3)
+
   })
 
   // Draw lives objects
@@ -371,7 +436,6 @@ function draw() {
   explosions.forEach(particle => {
     ctx.globalAlpha = particle.time / 30
     ctx.fillRect(particle.x, particle.y, particle.size, particle.size)
-
   })
   ctx.globalAlpha = 1
 
@@ -386,6 +450,7 @@ function draw() {
 
 }
 
+// Game Loop
 function gameLoop() {
   if (!isGameActive) return
   update()
@@ -393,6 +458,7 @@ function gameLoop() {
   requestAnimationFrame(gameLoop)
 }
 
+// Initialize Lives Board
 window.onload = updateLivesBoard(0)
 
 gameLoop();
@@ -411,6 +477,4 @@ Esta función utiliza un algoritmo llamado AABB (Axis-Aligned Bounding Box).
 Su objetivo es verificar si dos rectángulos se están tocando o solapando
 en un espacio de 2D.
 
-
 */
-
