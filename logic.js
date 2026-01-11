@@ -394,7 +394,7 @@ function draw() {
   } else {
     ctx.fillStyle = gradient
   }
-  
+
   ctx.beginPath()
   ctx.moveTo(player.x + player.width / 2, player.y)
   ctx.lineTo(player.x + player.width, player.y + player.height)
@@ -410,19 +410,42 @@ function draw() {
   })
 
   // Draw enemies
-  enemies.forEach(enemy => {
-    ctx.fillStyle = enemy.color || '#27ae60'
 
+
+  enemies.forEach(enemy => {
+    let gradientEnemy = ctx.createLinearGradient(enemy.x, enemy.y, enemy.x, enemy.y + enemy.height)
+    gradientEnemy.addColorStop(0, '#2ecc71')
+    gradientEnemy.addColorStop(1, '#145a32')
+
+    ctx.fillStyle = gradientEnemy
+
+    // Draw body
     ctx.beginPath()
     ctx.arc(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width / 2, Math.PI, 0)
-    ctx.lineTo(enemy.x + enemy.width, enemy.y + enemy.height)
-    ctx.lineTo(enemy.x, enemy.y + enemy.height)
+    ctx.lineTo(enemy.x + enemy.width, enemy.y + enemy.height - 5)
+    ctx.lineTo(enemy.x, enemy.y + enemy.height - 5)
     ctx.fill()
 
+    ctx.strokeStyle = '#145a32'
+    ctx.lineWidth = 2
+    ctx.stroke()
+
+    // Draw eyes
     ctx.fillStyle = 'white'
     ctx.fillRect(enemy.x + enemy.width * 0.25, enemy.y + enemy.height * 0.3, 3, 3)
     ctx.fillRect(enemy.x + enemy.width * 0.65, enemy.y + enemy.height * 0.3, 3, 3)
 
+    // Draw tentacles
+    ctx.fillStyle = enemy.color || '#1e924e'
+    let legOffset = Math.sin(Date.now() / 100) * 3
+
+    ctx.fillRect(enemy.x + 2, enemy.y + enemy.height - 3, 6, 5 + legOffset)
+    ctx.fillRect(enemy.x + enemy.width / 2 - 3, enemy.y + enemy.height - 3, 6, 5 - legOffset)
+    ctx.fillRect(enemy.x + enemy.width - 8, enemy.y + enemy.height - 3, 6, 5 + legOffset)
+
+    // visual collision box (for testing)
+    //ctx.fillStyle = '#ff545463'
+    //ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
   })
 
   // Draw lives objects
