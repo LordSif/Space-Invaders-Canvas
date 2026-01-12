@@ -134,7 +134,7 @@ function spawnEnemy() {
 
 // Spawn Lives Object
 function spawnLivesObj() {
-  const lifeWidth = 10
+  const lifeWidth = 15
   livesObj.push({
 
     x: Math.random() * (canvas.width - lifeWidth),
@@ -358,6 +358,17 @@ function update() {
   }
 }
 
+// Heart Pixel Pattern
+const heartPattern = [
+  [0, 1, 1, 0, 0, 1, 1, 0],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [1, 1, 1, 1, 1, 1, 1, 1],
+  [0, 1, 1, 1, 1, 1, 1, 0],
+  [0, 0, 1, 1, 1, 1, 0, 0],
+  [0, 0, 0, 1, 1, 0, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, 0]
+];
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -410,8 +421,6 @@ function draw() {
   })
 
   // Draw enemies
-
-
   enemies.forEach(enemy => {
     let gradientEnemy = ctx.createLinearGradient(enemy.x, enemy.y, enemy.x, enemy.y + enemy.height)
     gradientEnemy.addColorStop(0, '#2ecc71')
@@ -449,9 +458,19 @@ function draw() {
   })
 
   // Draw lives objects
-  ctx.fillStyle = '#93f3d6ff'
+  ctx.fillStyle = '#e63946'
   livesObj.forEach(live => {
-    ctx.fillRect(live.x, live.y, live.width, live.height)
+    const size = 2
+    for (let row = 0; row < heartPattern.length; row++) {
+      for (let col = 0; col < heartPattern[row].length; col++) {
+        if (heartPattern[row][col] === 1) {
+          ctx.fillRect(live.x + col * size, live.y + row * size, size, size)
+        }
+      }
+    }
+    // Collision box (for testing)
+    //ctx.fillStyle = 'rgba(147, 216, 243, 0.35)'
+    //ctx.fillRect(live.x, live.y, live.width, live.height)
   })
 
   // Draw explosions
@@ -470,6 +489,8 @@ function draw() {
     ctx.fillRect(particle.x - particle.size / 2, particle.y, particle.size, 2)
   })
   ctx.globalAlpha = 1
+
+
 
 }
 
