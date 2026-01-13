@@ -52,6 +52,13 @@ let shootingStar = {
   active: false
 }
 
+// Boss Object
+const boss = {
+  active: true,
+  health: 100,
+  maxHealth: 100
+}
+
 // Enemy Object (Extraterrestres xd)
 const enemies = []
 setInterval(spawnEnemy, 1000)
@@ -489,6 +496,29 @@ function draw() {
     ctx.fillRect(particle.x - particle.size / 2, particle.y, particle.size, 2)
   })
   ctx.globalAlpha = 1
+
+  // Draw boss health bar
+  if (boss.active) {
+    const barWidth = 200
+    const barHeight = 10
+    const barX = (canvas.width - barWidth) / 2
+    const barY = 20
+
+    ctx.fillStyle = '#555'
+    ctx.fillRect(barX, barY, barWidth, barHeight)
+
+    const healthPercent = boss.health / boss.maxHealth
+    ctx.fillStyle = '#e74c3c'
+    ctx.fillRect(barX, barY, barWidth - healthPercent, barHeight)
+
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 1
+    ctx.strokeRect(barX, barY, barWidth, barHeight)
+    
+    ctx.fillStyle = 'white'
+    ctx.font = '10px Arial'
+    ctx.fillText(`Boss Health: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
+  }
 
 
 
