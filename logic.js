@@ -55,6 +55,12 @@ let shootingStar = {
 // Boss Object
 const boss = {
   active: true,
+  x: canvas.width / 2 - 50,
+  y: 50,
+  width : 100,
+  height: 60,
+  speedX: 3,
+  positionY: 50,
   health: 100,
   maxHealth: 100
 }
@@ -499,6 +505,28 @@ function draw() {
 
   // Draw boss health bar
   if (boss.active) {
+
+    ctx.fillStyle = '#8e44ad'
+    ctx.shadowBlur = 10
+    ctx.shadowColor = '#e056fd'
+
+    ctx.beginPath()
+    ctx.moveTo(boss.x, boss.y)
+    ctx.lineTo(boss.x + boss.width, boss.y)
+    ctx.lineTo(boss.x + boss.width - 10, boss.y + boss.height)
+    ctx.lineTo(boss.x + 10, boss.y + boss.height)
+    ctx.closePath()
+    ctx.fill()
+    
+    // Draw boss eyes
+    ctx.fillStyle = '#fff018'
+    ctx.shadowBlur = 5
+    ctx.shadowColor = '#fff018'
+    ctx.fillRect(boss.x + 20, boss.y + 20, 15, 10)
+    ctx.fillRect(boss.x + boss.width - 35, boss.y + 20, 15, 10)
+
+    ctx.shadowBlur = 0
+    // Draw boss health bar
     const barWidth = 200
     const barHeight = 10
     const barX = (canvas.width - barWidth) / 2
@@ -506,8 +534,9 @@ function draw() {
 
     ctx.fillStyle = '#555'
     ctx.fillRect(barX, barY, barWidth, barHeight)
-
+ // Calculate health percentage
     const healthPercent = boss.health / boss.maxHealth
+
     ctx.fillStyle = '#e74c3c'
     ctx.fillRect(barX, barY, barWidth - healthPercent, barHeight)
 
@@ -517,7 +546,7 @@ function draw() {
     
     ctx.fillStyle = 'white'
     ctx.font = '10px Arial'
-    ctx.fillText(`Boss Health: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
+    ctx.fillText(`Mondongo Espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
   }
 
 
