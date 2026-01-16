@@ -54,20 +54,21 @@ let shootingStar = {
 
 // Boss Object
 const boss = {
-  active: true,
+  active: false,
   x: canvas.width / 2 - 50,
-  y: 50,
-  width : 100,
+  y: -150,
+  width: 100,
   height: 60,
   speedX: 3,
   positionY: 50,
-  health: 100,
-  maxHealth: 100
+  health: 200,
+  maxHealth: 200
 }
 
 // Enemy Object (Extraterrestres xd)
 const enemies = []
-setInterval(spawnEnemy, 1000)
+setInterval(spawnEnemy, 1000);
+
 
 // Bullets Object
 const bullets = []
@@ -135,6 +136,7 @@ for (let i = 0; i < numStars; i++) {
 }
 // Spawn Enemy
 function spawnEnemy() {
+  if (boss.active) return
   const enemyWidth = 30
   enemies.push({
     x: Math.random() * (canvas.width - enemyWidth),
@@ -369,6 +371,48 @@ function update() {
       shootingStar.active = false
     }
   }
+
+  if (score >= 300 && !boss.active && boss.health > 0) {
+    boss.active = true
+  }
+
+  if (boss.active) {
+    if (boss.y < boss.positionY) {
+      boss.y += 1
+    } else {
+      boss.x += boss.speedX
+      if (boss.x <= 0 || boss.x + boss.width >= canvas.width) {
+        boss.speedX *= -1
+      }
+    }
+
+    for (let i = 0; i < bullets.length; i++) {
+      if (isColliding(bullets[i], boss)) {
+        boss.health -= 5
+        createExplosion(bullets[i].x, bullets[i].y)
+
+        bullets.splice(i, 1)
+        i--
+        hitSound.currentTime = 0
+        hitSound.play()
+
+        if (boss.health <= 0) {
+          boss.active = false
+          createExplosion(boss.x + boss.width / 2, boss.y + boss.height / 2)
+          explosionSound.play()
+          score += 1000
+
+          setTimeout(() => {
+            alert("Winner, ganaste campeon pero... a que costo?")
+            document.location.reload()
+          }, 2000)
+        }
+      }
+    }
+
+
+  }
+
 }
 
 // Heart Pixel Pattern
@@ -486,7 +530,72 @@ function draw() {
     //ctx.fillRect(live.x, live.y, live.width, live.height)
   })
 
-  // Draw explosions
+  
+
+  // Draw boss health bar
+  if (boss.active) {
+
+    ctx.fillStyle = '#8e44ad'
+    ctx.shadowBlur = 10
+    ctx.shadowColor = '#e056fd'
+
+    // Body
+    ctx.beginPath()
+    ctx.moveTo(boss.x, boss.y)
+    ctx.lineTo(boss.x + boss.width, boss.y)
+    ctx.lineTo(boss.x + boss.width - 10, boss.y + boss.height)
+    ctx.lineTo(boss.x + 10, boss.y + boss.height)
+    ctx.closePath()
+    ctx.fill()
+    ctx.shadowBlur = 0
+    // hands
+    ctx.fillStyle = '#8e44ad'
+
+    ctx.fillRect(boss.x - 15, boss.y + 10, 20, 10)
+    ctx.fillRect(boss.x + boss.width - 5, boss.y + 10, 20, 10)
+    ctx.fillRect(boss.x - 50, boss.y + boss.height / 2 - 4, 200, 15)
+
+    // Mouth
+    ctx.fillStyle = '#404240'
+    ctx.beginPath()
+    ctx.arc(boss.x + boss.width / 2, boss.y + boss.height, boss.width / 6, Math.PI, 0)
+    ctx.strokeStyle = '#000000'
+    ctx.lineWidth = 3
+    ctx.stroke()
+    ctx.fill()
+
+    // Eyes
+    ctx.fillStyle = '#fff018'
+    ctx.shadowBlur = 5
+    ctx.shadowColor = '#fff018'
+    ctx.fillRect(boss.x + 20, boss.y + 20, 15, 10)
+    ctx.fillRect(boss.x + boss.width - 35, boss.y + 20, 15, 10)
+    ctx.shadowBlur = 0
+
+    // Draw boss health bar
+    const barWidth = 200
+    const barHeight = 10
+    const barX = (canvas.width - barWidth) / 2
+    const barY = 20
+
+    ctx.fillStyle = '#555'
+    ctx.fillRect(barX, barY, barWidth, barHeight)
+    // Calculate health percentage
+    const healthPercent = boss.health / boss.maxHealth
+
+    ctx.fillStyle = '#e74c3c'
+    ctx.fillRect(barX, barY, barWidth - healthPercent, barHeight)
+
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 1
+    ctx.strokeRect(barX, barY, barWidth, barHeight)
+
+    ctx.fillStyle = 'white'
+    ctx.font = '10px Arial'
+    ctx.fillText(`Mondongo Espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
+  }
+
+// Draw explosions
   ctx.fillStyle = '#fcff34ff'
   explosions.forEach(particle => {
     ctx.globalAlpha = particle.time / 30
@@ -502,54 +611,6 @@ function draw() {
     ctx.fillRect(particle.x - particle.size / 2, particle.y, particle.size, 2)
   })
   ctx.globalAlpha = 1
-
-  // Draw boss health bar
-  if (boss.active) {
-
-    ctx.fillStyle = '#8e44ad'
-    ctx.shadowBlur = 10
-    ctx.shadowColor = '#e056fd'
-
-    ctx.beginPath()
-    ctx.moveTo(boss.x, boss.y)
-    ctx.lineTo(boss.x + boss.width, boss.y)
-    ctx.lineTo(boss.x + boss.width - 10, boss.y + boss.height)
-    ctx.lineTo(boss.x + 10, boss.y + boss.height)
-    ctx.closePath()
-    ctx.fill()
-    
-    // Draw boss eyes
-    ctx.fillStyle = '#fff018'
-    ctx.shadowBlur = 5
-    ctx.shadowColor = '#fff018'
-    ctx.fillRect(boss.x + 20, boss.y + 20, 15, 10)
-    ctx.fillRect(boss.x + boss.width - 35, boss.y + 20, 15, 10)
-
-    ctx.shadowBlur = 0
-    // Draw boss health bar
-    const barWidth = 200
-    const barHeight = 10
-    const barX = (canvas.width - barWidth) / 2
-    const barY = 20
-
-    ctx.fillStyle = '#555'
-    ctx.fillRect(barX, barY, barWidth, barHeight)
- // Calculate health percentage
-    const healthPercent = boss.health / boss.maxHealth
-
-    ctx.fillStyle = '#e74c3c'
-    ctx.fillRect(barX, barY, barWidth - healthPercent, barHeight)
-
-    ctx.strokeStyle = 'white'
-    ctx.lineWidth = 1
-    ctx.strokeRect(barX, barY, barWidth, barHeight)
-    
-    ctx.fillStyle = 'white'
-    ctx.font = '10px Arial'
-    ctx.fillText(`Mondongo Espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
-  }
-
-
 
 }
 
