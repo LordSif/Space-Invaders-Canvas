@@ -69,10 +69,11 @@ const boss = {
 const enemies = []
 setInterval(spawnEnemy, 1000);
 
-
 // Bullets Object
 const bullets = []
 setInterval(fireBullet, 500)
+
+const bossBullets = []
 
 // Lives Object
 const livesObj = []
@@ -372,7 +373,7 @@ function update() {
     }
   }
 
-  if (score >= 300 && !boss.active && boss.health > 0) {
+  if (score >= 20 && !boss.active && boss.health > 0) {
     boss.active = true
   }
 
@@ -385,6 +386,7 @@ function update() {
         boss.speedX *= -1
       }
     }
+
 
     for (let i = 0; i < bullets.length; i++) {
       if (isColliding(bullets[i], boss)) {
@@ -409,6 +411,40 @@ function update() {
         }
       }
     }
+
+    if(Math.random() < 0.03) {
+      bossBullets.push({
+        x: boss.x + boss.width / 2 - 5,
+        y: boss.y + boss.height,
+        width: 10,
+        height: 20,
+        speed: 6
+      })
+    }
+
+    for (let i = 0; i < bossBullets.length; i++) {
+      let bullet = bossBullets[i]
+      bullet.y += bullet.speed
+
+      if (isColliding(player, bullet)) {
+
+        updateLivesBoard(-1)
+
+        hitSound.currentTime = 0
+        hitSound.play()
+
+        bossBullets.splice(i, 1)
+        i--
+        continue
+      }
+
+      if (bullet.y > canvas.height) {
+        bossBullets.splice(i, 1)
+        i--
+      }
+    }
+
+
 
 
   }
@@ -510,8 +546,8 @@ function draw() {
     ctx.fillRect(enemy.x + enemy.width - 8, enemy.y + enemy.height - 3, 6, 5 + legOffset)
 
     // visual collision box (for testing)
-    //ctx.fillStyle = '#ff545463'
-    //ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+    ctx.fillStyle = '#ff545463'
+    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
   })
 
   // Draw lives objects
@@ -530,9 +566,7 @@ function draw() {
     //ctx.fillRect(live.x, live.y, live.width, live.height)
   })
 
-  
-
-  // Draw boss health bar
+  // Draw boss
   if (boss.active) {
 
     ctx.fillStyle = '#8e44ad'
@@ -550,7 +584,6 @@ function draw() {
     ctx.shadowBlur = 0
     // hands
     ctx.fillStyle = '#8e44ad'
-
     ctx.fillRect(boss.x - 15, boss.y + 10, 20, 10)
     ctx.fillRect(boss.x + boss.width - 5, boss.y + 10, 20, 10)
     ctx.fillRect(boss.x - 50, boss.y + boss.height / 2 - 4, 200, 15)
@@ -572,6 +605,16 @@ function draw() {
     ctx.fillRect(boss.x + boss.width - 35, boss.y + 20, 15, 10)
     ctx.shadowBlur = 0
 
+    //ctx.fillStyle = "#be5f5fb9"
+    //ctx.fillRect(boss.x, boss.y, boss.width, boss.height)
+
+    // bullets
+    ctx.fillStyle = 'purple'
+    bossBullets.forEach(bullet =>{
+      ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
+    })
+
+
     // Draw boss health bar
     const barWidth = 200
     const barHeight = 10
@@ -582,9 +625,8 @@ function draw() {
     ctx.fillRect(barX, barY, barWidth, barHeight)
     // Calculate health percentage
     const healthPercent = boss.health / boss.maxHealth
-
     ctx.fillStyle = '#e74c3c'
-    ctx.fillRect(barX, barY, barWidth - healthPercent, barHeight)
+    ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight)
 
     ctx.strokeStyle = 'white'
     ctx.lineWidth = 1
