@@ -45,7 +45,7 @@ const player = {
 }
 
 // Shooting Star Object
-let shootingStar = {
+const shootingStar = {
   x: 0,
   y: 0,
   speed: 0,
@@ -73,6 +73,7 @@ setInterval(spawnEnemy, 1000);
 const bullets = []
 setInterval(fireBullet, 500)
 
+// Boss Bullets Object
 const bossBullets = []
 
 // Lives Object
@@ -115,7 +116,17 @@ leftBtn.addEventListener('mouseup', () => leftPressed = false)
 rightBtn.addEventListener('mousedown', () => rightPressed = true)
 rightBtn.addEventListener('mouseup', () => rightPressed = false)
 
-// Fire Bullet
+// Starfield Effect
+for (let i = 0; i < numStars; i++) {
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 1.5,
+    speed: Math.random() * 2 + 0.5
+  })
+}
+
+// Shoot Bullets
 function fireBullet() {
   bullets.push({
     x: player.x + player.width / 2 - 2,
@@ -126,15 +137,6 @@ function fireBullet() {
   })
 }
 
-// Starfield Effect
-for (let i = 0; i < numStars; i++) {
-  stars.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 1.5,
-    speed: Math.random() * 2 + 0.5
-  })
-}
 // Spawn Enemy
 function spawnEnemy() {
   if (boss.active) return
@@ -148,18 +150,16 @@ function spawnEnemy() {
   })
 }
 
-// Spawn Lives Object
+// Spawn Lives
 function spawnLivesObj() {
   const lifeWidth = 15
   livesObj.push({
-
     x: Math.random() * (canvas.width - lifeWidth),
     y: 0,
     width: lifeWidth,
     height: lifeWidth,
     speed: 1.5
   })
-
 }
 
 // Explosion Effect
@@ -172,7 +172,6 @@ function createExplosion(x, y) {
       vx: (Math.random() - 0.5) * 6,
       vy: (Math.random() - 0.5) * 6,
       size: Math.random() * 4 + 1,
-      //radius: Math.random() * 3 + 2,
       time: 30,
     })
   }
@@ -193,7 +192,7 @@ function HealEffect(x, y) {
   }
 }
 
-// Collision Detection AABB algorithm
+// Collision Detection AABB Algorithm
 function isColliding(rect1, rect2) {
   return rect1.x < rect2.x + rect2.width &&
     rect1.x + rect1.width > rect2.x &&
@@ -203,18 +202,17 @@ function isColliding(rect1, rect2) {
 
 // Update Lives Board
 function updateLivesBoard(value) {
-  console.log("Veces en ejecutarse")
-
   if (value < 0) {
     damageOverlay.classList.add('animate-flash')
     setTimeout(() => damageOverlay.classList.remove('animate-flash'), 400)
     gameContainer.classList.add('shake-effect')
     setTimeout(() => gameContainer.classList.remove('shake-effect'), 200)
   }
+
   lives += value
   if (lives > 5) lives = 5
-  livesBoard.innerHTML = ""
 
+  livesBoard.innerHTML = ""
   const label = document.createElement('span')
   label.textContent = "Lives: "
   livesBoard.appendChild(label)
@@ -226,8 +224,8 @@ function updateLivesBoard(value) {
     livesBoard.appendChild(heartImg)
   }
 
+  // Game Over
   if (lives <= 0) {
-    console.log("Game Over!")
     isGameActive = false
     setTimeout(() => damageOverlay.classList.add('animate-flash'), 1000)
     canvas.style.filter = 'grayscale(100%) blur(2px) brightness(0.5)'
@@ -299,6 +297,7 @@ function update() {
       i--
     }
   }
+
   // Healing timer update
   if (healTimer > 0) {
     healTimer--
@@ -321,7 +320,7 @@ function update() {
     }
   }
 
-  // Explosion update
+  // Explosion effect update
   for (let i = 0; i < explosions.length; i++) {
     const particle = explosions[i]
     particle.x += particle.vx
@@ -347,7 +346,7 @@ function update() {
     }
   }
 
-  // Starfield update
+  // Starfield effect update
   stars.forEach(star => {
     star.y += star.speed
     if (star.y > canvas.height) {
@@ -373,6 +372,7 @@ function update() {
     }
   }
 
+  // Boss activation logic update
   if (score >= 20 && !boss.active && boss.health > 0) {
     boss.active = true
   }
@@ -387,17 +387,17 @@ function update() {
       }
     }
 
-
+    // Boss Collision with Bullets
     for (let i = 0; i < bullets.length; i++) {
       if (isColliding(bullets[i], boss)) {
         boss.health -= 5
         createExplosion(bullets[i].x, bullets[i].y)
-
         bullets.splice(i, 1)
         i--
         hitSound.currentTime = 0
         hitSound.play()
 
+        // Check if Boss Defeated
         if (boss.health <= 0) {
           boss.active = false
           createExplosion(boss.x + boss.width / 2, boss.y + boss.height / 2)
@@ -412,7 +412,8 @@ function update() {
       }
     }
 
-    if(Math.random() < 0.03) {
+    // Shoot Boss Bullets
+    if (Math.random() < 0.03) {
       bossBullets.push({
         x: boss.x + boss.width / 2 - 5,
         y: boss.y + boss.height,
@@ -422,17 +423,14 @@ function update() {
       })
     }
 
+    // Move Boss Bullets
     for (let i = 0; i < bossBullets.length; i++) {
-      let bullet = bossBullets[i]
+      const bullet = bossBullets[i]
       bullet.y += bullet.speed
-
       if (isColliding(player, bullet)) {
-
         updateLivesBoard(-1)
-
         hitSound.currentTime = 0
         hitSound.play()
-
         bossBullets.splice(i, 1)
         i--
         continue
@@ -443,12 +441,7 @@ function update() {
         i--
       }
     }
-
-
-
-
   }
-
 }
 
 // Heart Pixel Pattern
@@ -582,6 +575,7 @@ function draw() {
     ctx.closePath()
     ctx.fill()
     ctx.shadowBlur = 0
+
     // hands
     ctx.fillStyle = '#8e44ad'
     ctx.fillRect(boss.x - 15, boss.y + 10, 20, 10)
@@ -605,26 +599,28 @@ function draw() {
     ctx.fillRect(boss.x + boss.width - 35, boss.y + 20, 15, 10)
     ctx.shadowBlur = 0
 
+    // Collision box (for testing)
     //ctx.fillStyle = "#be5f5fb9"
     //ctx.fillRect(boss.x, boss.y, boss.width, boss.height)
 
     // bullets
+    ctx.shadowBlur = 10
+    ctx.shadowColor = 'rgb(255, 17, 108)'
     ctx.fillStyle = 'purple'
-    bossBullets.forEach(bullet =>{
+    bossBullets.forEach(bullet => {
       ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
     })
-
+    ctx.shadowBlur = 0
 
     // Draw boss health bar
     const barWidth = 200
     const barHeight = 10
     const barX = (canvas.width - barWidth) / 2
     const barY = 20
+    const healthPercent = boss.health / boss.maxHealth
 
     ctx.fillStyle = '#555'
     ctx.fillRect(barX, barY, barWidth, barHeight)
-    // Calculate health percentage
-    const healthPercent = boss.health / boss.maxHealth
     ctx.fillStyle = '#e74c3c'
     ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight)
 
@@ -637,7 +633,7 @@ function draw() {
     ctx.fillText(`Mondongo Espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
   }
 
-// Draw explosions
+  // Draw explosions
   ctx.fillStyle = '#fcff34ff'
   explosions.forEach(particle => {
     ctx.globalAlpha = particle.time / 30
