@@ -4,21 +4,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Space Invaders</title>
+  <title>Space Invaders in Canvas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
   <div id="gameContainer">
-    <div id="scoreBoard">Score: 0</div>
-    <div id="livesBoard"></div>
-  <div id="damageOverlay" class="damage-flash"></div>
+    <div id="scoreBoard" class="hidden">Score: 0</div>
+    <div id="livesBoard" class="hidden"></div>
+
+    <div id="damageOverlay" class="damage-flash"></div>
+
+    <div id="mainMenu">
+      <h1 class="game-title">Space Invaders in Canvas</h1>
+      <div class="menu-buttons">
+        <button type="button" id="btnPlay">Play</button>
+        <button type="button" id="btnOptions">Options</button>
+        <button type="button" id="btnScore">High Scores</button>
+        <button type="button" id="btnCredits">Credits</button>
+      </div>
+      <p class="credits">Create with Canvas Api</p>
+    </div>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
   </div>
-  <div class="controls">
+
+  <div id="mobileControls" class="controls hidden">
     <button id="leftBtn" class="control-btn">Left</button>
     <button id="rightBtn" class="control-btn">Right</button>
   </div>
+
   <script src="logic.js"></script>
 </body>
 

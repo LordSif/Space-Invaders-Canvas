@@ -28,6 +28,70 @@ canvas {
   position: relative;
   display: inline-block;
 }
+.hidden {
+  display: none !important;
+}
+
+#mainMenu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+
+.game-title {
+  font-size: 2rem;
+  color: #00d4ff;
+  text-align: center;
+  margin-bottom: 30px;
+  line-height: 1.5;
+  text-shadow: 4px 4px #e056fd;
+  animation: titleFloat 2s infinite ease-in-out;
+}
+
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 30%;
+}
+
+.menu-buttons button {
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+  font-family: "Press Start 2P", system-ui;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.menu-buttons button:hover {
+  background: white;
+  color: black;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px white;
+}
+
+.credits {
+  margin-top: 5px;
+  font-size: 0.5rem;
+  color: #666;
+}
 
 .controls {
   margin-top: 10px;

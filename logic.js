@@ -10,6 +10,12 @@ const CombatMusic = new Audio('combat-music1.m4a')
 const livesBoard = document.getElementById('livesBoard')
 const damageOverlay = document.getElementById('damageOverlay')
 const gameContainer = document.getElementById('gameContainer')
+const mainMenu = document.getElementById('mainMenu')
+const btnPlay = document.getElementById('btnPlay')
+const btnOptions = document.getElementById('btnOptions')
+const btnCredits = document.getElementById('btnCredits')
+const btnLanguage = document.getElementById('btnLanguage')
+const mobileControls = document.getElementById('mobileControls')
 const gameOverSound = new Audio('game-over3.mp3')
 
 CombatMusic.loop = true
@@ -19,21 +25,62 @@ let score = 0
 let lives = 3
 let healTimer = 0
 let damageTimer = 0
-let gameStarted = false
-let isGameActive = true
+let isGameActive = false
+let enemyInterval
+let bulletInterval
+let livesInterval
+let animationId
 
-function startAudio() {
-  if (!gameStarted) {
-    CombatMusic.play()
-    gameStarted = true
-  }
+function startGame() {
+  if (isGameActive) return
+  isGameActive = true
+
+  mainMenu.classList.add('hidden')
+  mobileControls.classList.remove('hidden')
+  scoreBoard.classList.remove('hidden')
+  livesBoard.classList.remove('hidden')
+
+  CombatMusic.play().catch(error => {
+    console.log("Audio playback failed:", error)
+  })
+
+  enemyInterval = setInterval(spawnEnemy, 1000)
+  bulletInterval = setInterval(fireBullet, 500)
+  livesInterval = setInterval(spawnLivesObj, 15000)
+  
+  requestAnimationFrame(gameLoop)
 }
 
-document.addEventListener('click', startAudio)
-document.addEventListener('touchstart', startAudio)
-document.addEventListener('mousemove', startAudio)
-document.addEventListener('keydown', startAudio)
-document.addEventListener('mousedown', startAudio)
+function resetGame() {
+
+  enemies.length = 0
+  bullets.length = 0
+  livesObj.length = 0
+  explosions.length = 0
+  healing.length = 0
+  bossBullets.length = 0
+
+  score = 0
+  lives = 3
+  healTimer = 0
+  damageTimer = 0
+
+  boss.active = false
+  boss.health = boss.maxHealth
+  boss.y = -150
+
+  player.x = canvas.width / 2 - 15
+  player.y = canvas.height - 30
+
+  canvas.style.filter = 'none'
+  damageOverlay.classList.remove('animate-flash')
+  
+  scoreBoard.textContent = "Score: 0"
+  updateLivesBoard(0)
+}
+
+btnPlay.addEventListener('click', startGame)
+btnPlay.addEventListener('touchstart', startGame)
 
 // Player Object (Navecita)
 const player = {
@@ -61,24 +108,21 @@ const boss = {
   height: 60,
   speedX: 3,
   positionY: 50,
-  health: 200,
-  maxHealth: 200
+  health: 200000,
+  maxHealth: 200000
 }
 
 // Enemy Object (Extraterrestres xd)
 const enemies = []
-setInterval(spawnEnemy, 1000);
 
 // Bullets Object
 const bullets = []
-setInterval(fireBullet, 500)
 
 // Boss Bullets Object
 const bossBullets = []
 
 // Lives Object
 const livesObj = []
-setInterval(spawnLivesObj, 15000)
 
 // Explosion Effect
 const explosions = []
@@ -227,6 +271,12 @@ function updateLivesBoard(value) {
   // Game Over
   if (lives <= 0) {
     isGameActive = false
+  cancelAnimationFrame(animationId)
+
+    clearInterval(enemyInterval)
+    clearInterval(bulletInterval)
+    clearInterval(livesInterval)
+
     setTimeout(() => damageOverlay.classList.add('animate-flash'), 1000)
     canvas.style.filter = 'grayscale(100%) blur(2px) brightness(0.5)'
     CombatMusic.currentTime = 0
@@ -234,7 +284,9 @@ function updateLivesBoard(value) {
     gameOverSound.play()
     setTimeout(() => {
       alert("Game Over! Your final score is: " + score)
-      document.location.reload()
+      resetGame()
+      startGame()
+      //document.location.reload()
     }, 1500)
   }
 }
@@ -657,13 +709,12 @@ function gameLoop() {
   if (!isGameActive) return
   update()
   draw()
-  requestAnimationFrame(gameLoop)
+
+  animationId =requestAnimationFrame(gameLoop)
 }
 
 // Initialize Lives Board
 window.onload = updateLivesBoard(0)
-
-gameLoop();
 
 /* 
 # requestAnimationFrame(function);
