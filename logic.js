@@ -15,12 +15,26 @@ const btnPlay = document.getElementById('btnPlay')
 const btnOptions = document.getElementById('btnOptions')
 const btnCredits = document.getElementById('btnCredits')
 const btnLanguage = document.getElementById('btnLanguage')
+const btnBack = document.getElementById('btnBack')
+const btnScore = document.getElementById('btnScore')
+const sound = document.getElementById('sound')
+const color = document.getElementById('color')
+const credits = document.getElementById('credits')
+const optionsTitle = document.getElementById('optionsTitle')
 const mobileControls = document.getElementById('mobileControls')
+const optionsMenu = document.getElementById('optionsMenu')
+const volumeSlider = document.getElementById('volumeSlider')
+const shipColorPicker = document.getElementById('shipColorPicker')
 const gameOverSound = new Audio('game-over3.mp3')
 
 CombatMusic.loop = true
 CombatMusic.volume = 0.6
 
+const Languages = ['EN', 'ES', 'FR', 'DE', 'IT']
+let LangIndex = 0
+let currentLang = Languages[LangIndex]
+
+// Game Variables
 let score = 0
 let lives = 3
 let healTimer = 0
@@ -30,6 +44,8 @@ let enemyInterval
 let bulletInterval
 let livesInterval
 let animationId
+let playerColor = '#0055ff'
+
 
 function startGame() {
   if (isGameActive) return
@@ -47,7 +63,7 @@ function startGame() {
   enemyInterval = setInterval(spawnEnemy, 1000)
   bulletInterval = setInterval(fireBullet, 500)
   livesInterval = setInterval(spawnLivesObj, 15000)
-  
+
   requestAnimationFrame(gameLoop)
 }
 
@@ -74,13 +90,97 @@ function resetGame() {
 
   canvas.style.filter = 'none'
   damageOverlay.classList.remove('animate-flash')
-  
+
   scoreBoard.textContent = "Score: 0"
   updateLivesBoard(0)
 }
 
 btnPlay.addEventListener('click', startGame)
 btnPlay.addEventListener('touchstart', startGame)
+
+btnOptions.addEventListener('click', () => {
+  mainMenu.classList.add('hidden')
+  optionsMenu.classList.remove('hidden')
+})
+btnBack.addEventListener('click', () => {
+  optionsMenu.classList.add('hidden')
+  mainMenu.classList.remove('hidden')
+})
+
+volumeSlider.addEventListener('input', (e) => {
+  const volume = e.target.value
+  CombatMusic.volume = volume
+})
+
+shipColorPicker.addEventListener('input', (e) => {
+  playerColor = e.target.value
+  console.log("Player color changed to:", playerColor)
+})
+
+btnLanguage.addEventListener('click', () => {
+  LangIndex++
+  if (LangIndex >= Languages.length) LangIndex = 0
+  currentLang = Languages[LangIndex]
+
+  updateLanguage()
+})
+
+function updateLanguage() {
+  const language = translations[currentLang]
+
+  btnPlay.textContent = language.play
+  btnOptions.textContent = language.options
+  btnCredits.textContent = language.credits
+  btnBack.textContent = language.back
+  btnScore.textContent = language.score
+  btnCredits.textContent = language.credits
+
+  sound.textContent = language.sound
+  color.textContent = language.color
+  credits.textContent = language.additional
+  optionsTitle.textContent = language.optionsTitle
+
+  btnLanguage.textContent = `${language.language}: ${currentLang}`
+}
+
+const translations = {
+  EN: {
+    play: "Play",
+    options: "Options",
+    score: "Score",
+    credits: "Credits",
+    back: "Back",
+    language: "Language",
+    color: "Color",
+    sound: "Sound",
+    optionsTitle: "Options",
+    additional: "Create with Canvas Api"
+  },
+  ES: {
+    play: "Jugar",
+    options: "Opciones",
+    score: "Puntuación",
+    credits: "Créditos",
+    back: "Volver",
+    language: "Idioma",
+    color: "Color",
+    sound: "Sonido",
+    optionsTitle: "Opciones",
+    additional: "Creado con Canvas Api"
+  },
+  FR: {
+    play: "Jouer",
+    options: "Options",
+    score: "Score",
+    credits: "Crédits",
+    back: "Retour",
+    language: "Langue",
+    color: "Couleur",
+    sound: "Son",
+    optionsTitle: "Options",
+    additional: "Créé avec Canvas Api"
+  }
+}
 
 // Player Object (Navecita)
 const player = {
@@ -271,7 +371,7 @@ function updateLivesBoard(value) {
   // Game Over
   if (lives <= 0) {
     isGameActive = false
-  cancelAnimationFrame(animationId)
+    cancelAnimationFrame(animationId)
 
     clearInterval(enemyInterval)
     clearInterval(bulletInterval)
@@ -532,7 +632,7 @@ function draw() {
   // Draw Player (Navecita)
   let gradient = ctx.createLinearGradient(0, player.y, 0, player.y + player.height)
   gradient.addColorStop(0, '#00d4ff')
-  gradient.addColorStop(1, '#0055ff')
+  gradient.addColorStop(1, playerColor)
 
   ctx.fillStyle = gradient
 
@@ -710,7 +810,7 @@ function gameLoop() {
   update()
   draw()
 
-  animationId =requestAnimationFrame(gameLoop)
+  animationId = requestAnimationFrame(gameLoop)
 }
 
 // Initialize Lives Board

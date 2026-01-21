@@ -12,7 +12,6 @@
   <div id="gameContainer">
     <div id="scoreBoard" class="hidden">Score: 0</div>
     <div id="livesBoard" class="hidden"></div>
-
     <div id="damageOverlay" class="damage-flash"></div>
 
     <div id="mainMenu">
@@ -20,10 +19,30 @@
       <div class="menu-buttons">
         <button type="button" id="btnPlay">Play</button>
         <button type="button" id="btnOptions">Options</button>
-        <button type="button" id="btnScore">High Scores</button>
+        <button type="button" id="btnScore">Score</button>
         <button type="button" id="btnCredits">Credits</button>
       </div>
-      <p class="credits">Create with Canvas Api</p>
+      <p id="credits" class="credits">Create with Canvas Api</p>
+    </div>
+
+    <div id="optionsMenu" class="hidden">
+      <h2 id="optionsTitle" class="menu-title">Options</h2>
+
+      <div class="menu-buttons">
+        <div class="option-item">
+          <span id="sound">Sound</span>
+          <input aria-label="sound" type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+        </div>
+
+
+        <div class="option-item">
+          <span id="color">Color</span>
+          <input aria-label="color" type="color" id="shipColorPicker" value="#0055ff">
+        </div>
+        <button type="button" id="btnLanguage">Language: EN</button>
+        <button type="button" id="btnBack">Back</button>
+      </div>
+
     </div>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
   </div>
