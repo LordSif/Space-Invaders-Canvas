@@ -30,11 +30,9 @@ const gameOverSound = new Audio('game-over3.mp3')
 CombatMusic.loop = true
 CombatMusic.volume = 0.6
 
-const Languages = ['EN', 'ES', 'FR', 'DE', 'IT']
+const Languages = ['EN', 'ES', 'FR']
 let LangIndex = 0
 let currentLang = Languages[LangIndex]
-
-// Game Variables
 let score = 0
 let lives = 3
 let healTimer = 0
@@ -56,14 +54,12 @@ function startGame() {
   scoreBoard.classList.remove('hidden')
   livesBoard.classList.remove('hidden')
 
-  CombatMusic.play().catch(error => {
-    console.log("Audio playback failed:", error)
-  })
+  CombatMusic.play()
 
   enemyInterval = setInterval(spawnEnemy, 1000)
   bulletInterval = setInterval(fireBullet, 500)
   livesInterval = setInterval(spawnLivesObj, 15000)
-
+  updateLivesBoard(0)
   requestAnimationFrame(gameLoop)
 }
 
@@ -90,8 +86,7 @@ function resetGame() {
 
   canvas.style.filter = 'none'
   damageOverlay.classList.remove('animate-flash')
-
-  scoreBoard.textContent = "Score: 0"
+  scoreBoard.textContent = translations[currentLang].hudScore + score
   updateLivesBoard(0)
 }
 
@@ -114,7 +109,6 @@ volumeSlider.addEventListener('input', (e) => {
 
 shipColorPicker.addEventListener('input', (e) => {
   playerColor = e.target.value
-  console.log("Player color changed to:", playerColor)
 })
 
 btnLanguage.addEventListener('click', () => {
@@ -139,6 +133,7 @@ function updateLanguage() {
   color.textContent = language.color
   credits.textContent = language.additional
   optionsTitle.textContent = language.optionsTitle
+  scoreBoard.textContent = language.hudScore + score
 
   btnLanguage.textContent = `${language.language}: ${currentLang}`
 }
@@ -154,7 +149,9 @@ const translations = {
     color: "Color",
     sound: "Sound",
     optionsTitle: "Options",
-    additional: "Create with Canvas Api"
+    additional: "Create with Canvas Api",
+    hudScore: "Score: ",
+    hudLives: "Lives: "
   },
   ES: {
     play: "Jugar",
@@ -166,7 +163,9 @@ const translations = {
     color: "Color",
     sound: "Sonido",
     optionsTitle: "Opciones",
-    additional: "Creado con Canvas Api"
+    additional: "Creado con Canvas Api",
+    hudScore: "Puntuación: ",
+    hudLives: "Vidas: "
   },
   FR: {
     play: "Jouer",
@@ -178,7 +177,9 @@ const translations = {
     color: "Couleur",
     sound: "Son",
     optionsTitle: "Options",
-    additional: "Créé avec Canvas Api"
+    additional: "Créé avec Canvas Api",
+    hudScore: "Score : ",
+    hudLives: "Vies : "
   }
 }
 
@@ -208,8 +209,8 @@ const boss = {
   height: 60,
   speedX: 3,
   positionY: 50,
-  health: 200000,
-  maxHealth: 200000
+  health: 100,
+  maxHealth: 100
 }
 
 // Enemy Object (Extraterrestres xd)
@@ -358,7 +359,7 @@ function updateLivesBoard(value) {
 
   livesBoard.innerHTML = ""
   const label = document.createElement('span')
-  label.textContent = "Lives: "
+  label.textContent = translations[currentLang].hudLives
   livesBoard.appendChild(label)
 
   for (let i = 0; i < lives; i++) {
@@ -463,7 +464,7 @@ function update() {
         bullets.splice(i, 1)
         enemies.splice(j, 1)
         score += 10
-        scoreBoard.textContent = "Score: " + score
+        scoreBoard.textContent = translations[currentLang].hudScore + score
         explosionSound.currentTime = 0
         explosionSound.play()
         i--
@@ -525,7 +526,7 @@ function update() {
   }
 
   // Boss activation logic update
-  if (score >= 20 && !boss.active && boss.health > 0) {
+  if (score >= 100 && !boss.active && boss.health > 0) {
     boss.active = true
   }
 
@@ -691,8 +692,8 @@ function draw() {
     ctx.fillRect(enemy.x + enemy.width - 8, enemy.y + enemy.height - 3, 6, 5 + legOffset)
 
     // visual collision box (for testing)
-    ctx.fillStyle = '#ff545463'
-    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
+    //ctx.fillStyle = '#ff545463'
+    //ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height)
   })
 
   // Draw lives objects
@@ -782,7 +783,7 @@ function draw() {
 
     ctx.fillStyle = 'white'
     ctx.font = '10px Arial'
-    ctx.fillText(`Mondongo Espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
+    ctx.fillText(`Eres un manco: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
   }
 
   // Draw explosions
@@ -812,9 +813,6 @@ function gameLoop() {
 
   animationId = requestAnimationFrame(gameLoop)
 }
-
-// Initialize Lives Board
-window.onload = updateLivesBoard(0)
 
 /* 
 # requestAnimationFrame(function);
