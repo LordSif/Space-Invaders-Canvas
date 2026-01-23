@@ -17,12 +17,17 @@ const btnCredits = document.getElementById('btnCredits')
 const btnLanguage = document.getElementById('btnLanguage')
 const btnBack = document.getElementById('btnBack')
 const btnScore = document.getElementById('btnScore')
+const btnRetry = document.getElementById('btnRetry')
+const btnQuit = document.getElementById('btnQuit')
 const sound = document.getElementById('sound')
 const color = document.getElementById('color')
 const credits = document.getElementById('credits')
+const finalScore = document.getElementById('finalScore')
 const optionsTitle = document.getElementById('optionsTitle')
+const gameOverTitle = document.getElementById('gameOverTitle')
 const mobileControls = document.getElementById('mobileControls')
 const optionsMenu = document.getElementById('optionsMenu')
+const gameOverMenu = document.getElementById('gameOverMenu')
 const volumeSlider = document.getElementById('volumeSlider')
 const shipColorPicker = document.getElementById('shipColorPicker')
 const gameOverSound = new Audio('game-over3.mp3')
@@ -43,7 +48,6 @@ let bulletInterval
 let livesInterval
 let animationId
 let playerColor = '#0055ff'
-
 
 function startGame() {
   if (isGameActive) return
@@ -115,8 +119,22 @@ btnLanguage.addEventListener('click', () => {
   LangIndex++
   if (LangIndex >= Languages.length) LangIndex = 0
   currentLang = Languages[LangIndex]
-
   updateLanguage()
+})
+
+btnRetry.addEventListener('click', () => {
+  gameOverMenu.classList.add('hidden')
+  resetGame()
+  startGame()
+})
+
+btnQuit.addEventListener('click', () => {
+  gameOverMenu.classList.add('hidden')
+  mainMenu.classList.remove('hidden')
+  scoreBoard.classList.add('hidden')
+  livesBoard.classList.add('hidden')
+  mobileControls.classList.add('hidden')
+  resetGame()
 })
 
 function updateLanguage() {
@@ -133,6 +151,10 @@ function updateLanguage() {
   color.textContent = language.color
   credits.textContent = language.additional
   optionsTitle.textContent = language.optionsTitle
+  gameOverTitle.textContent = language.gameOver
+  btnRetry.textContent = language.retry
+  btnQuit.textContent = language.quit
+  finalScore.textContent = language.finalScore + score
   scoreBoard.textContent = language.hudScore + score
 
   btnLanguage.textContent = `${language.language}: ${currentLang}`
@@ -151,7 +173,11 @@ const translations = {
     optionsTitle: "Options",
     additional: "Create with Canvas Api",
     hudScore: "Score: ",
-    hudLives: "Lives: "
+    hudLives: "Lives: ",
+    gameOver: "Game Over",
+    retry: "Try Again",
+    quit: "Main Menu",
+    finalScore: "Final Score: "
   },
   ES: {
     play: "Jugar",
@@ -165,7 +191,11 @@ const translations = {
     optionsTitle: "Opciones",
     additional: "Creado con Canvas Api",
     hudScore: "Puntuación: ",
-    hudLives: "Vidas: "
+    hudLives: "Vidas: ",
+    gameOver: "Fin del Juego",
+    retry: "Reintentar",
+    quit: "Menú Principal",
+    finalScore: "Puntaje Final: "
   },
   FR: {
     play: "Jouer",
@@ -179,7 +209,11 @@ const translations = {
     optionsTitle: "Options",
     additional: "Créé avec Canvas Api",
     hudScore: "Score : ",
-    hudLives: "Vies : "
+    hudLives: "Vies : ",
+    gameOver: "Jeu Terminé",
+    retry: "Réessayer",
+    quit: "Menu Principal",
+    finalScore: "Score Final: "
   }
 }
 
@@ -380,15 +414,20 @@ function updateLivesBoard(value) {
 
     setTimeout(() => damageOverlay.classList.add('animate-flash'), 1000)
     canvas.style.filter = 'grayscale(100%) blur(2px) brightness(0.5)'
+
     CombatMusic.currentTime = 0
     CombatMusic.pause()
     gameOverSound.play()
+
     setTimeout(() => {
-      alert("Game Over! Your final score is: " + score)
-      resetGame()
-      startGame()
-      //document.location.reload()
-    }, 1500)
+
+      mobileControls.classList.add('hidden')
+      scoreBoard.classList.add('hidden')
+      livesBoard.classList.add('hidden')
+      gameOverMenu.classList.remove('hidden')
+
+      finalScore.textContent = translations[currentLang].finalScore + score
+    }, 1000)
   }
 }
 

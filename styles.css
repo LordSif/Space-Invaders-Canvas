@@ -60,8 +60,31 @@ canvas {
   z-index: 30;
 }
 
+#gameOverMenu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 40;
+}
+
+.game-title {
+  font-size: 2rem;
+  color: #00d4ff;
+  text-align: center;
+  text-shadow: 4px 4px #e056fd;
+  line-height: 1.5;
+  margin-bottom: 30px;
+  animation: titleFloat 2s infinite ease-in-out;
+}
+
 .menu-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   color: #00d4ff;
   text-align: center;
   text-shadow: 4px 4px #e056fd;
@@ -97,17 +120,6 @@ input[type="color"] {
   background: none;
 }
 
-
-.game-title {
-  font-size: 2rem;
-  color: #00d4ff;
-  text-align: center;
-  margin-bottom: 30px;
-  line-height: 1.5;
-  text-shadow: 4px 4px #e056fd;
-  animation: titleFloat 2s infinite ease-in-out;
-}
-
 @keyframes titleFloat {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
@@ -117,7 +129,7 @@ input[type="color"] {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 30%;
+  width: 40%;
 }
 
 .menu-buttons button {

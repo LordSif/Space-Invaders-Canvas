@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Space Invaders in Canvas</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="#" type="image/x-icon">
 </head>
 
 <body>
@@ -44,12 +45,23 @@
       </div>
 
     </div>
+    <div id="gameOverMenu" class="hidden">
+      <h2 id="gameOverTitle" class="game-title"><p>Game Over</p></h2>
+      <h2 id="finalScore" class="menu-title" >Score: 0</h2>
+
+      <div class="menu-buttons">
+        <button type="button" id="btnRetry">Try Again</button>
+        <button type="button" id="btnQuit">Main Menu</button>
+      </div>
+
+
+    </div>
     <canvas id="gameCanvas" width="400" height="400"></canvas>
   </div>
 
   <div id="mobileControls" class="controls hidden">
-    <button id="leftBtn" class="control-btn"><</button>
-    <button id="rightBtn" class="control-btn">></button>
+    <button type="button" id="leftBtn" class="control-btn"><</button>
+    <button type="button" id="rightBtn" class="control-btn">></button>
   </div>
 
   <script src="logic.js"></script>
