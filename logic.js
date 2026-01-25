@@ -16,18 +16,23 @@ const btnOptions = document.getElementById('btnOptions')
 const btnCredits = document.getElementById('btnCredits')
 const btnLanguage = document.getElementById('btnLanguage')
 const btnBack = document.getElementById('btnBack')
+const btnBackCredits = document.getElementById('btnBackCredits')
 const btnScore = document.getElementById('btnScore')
 const btnRetry = document.getElementById('btnRetry')
 const btnQuit = document.getElementById('btnQuit')
 const sound = document.getElementById('sound')
 const color = document.getElementById('color')
-const credits = document.getElementById('credits')
+const additional = document.getElementById('additional')
+const dev = document.getElementById('dev')
+const testing = document.getElementById('testing')
 const finalScore = document.getElementById('finalScore')
 const optionsTitle = document.getElementById('optionsTitle')
 const gameOverTitle = document.getElementById('gameOverTitle')
+const creditsTitle = document.getElementById('creditsTitle')
 const mobileControls = document.getElementById('mobileControls')
 const optionsMenu = document.getElementById('optionsMenu')
 const gameOverMenu = document.getElementById('gameOverMenu')
+const creditsMenu = document.getElementById('creditsMenu')
 const volumeSlider = document.getElementById('volumeSlider')
 const shipColorPicker = document.getElementById('shipColorPicker')
 const gameOverSound = new Audio('game-over3.mp3')
@@ -101,8 +106,20 @@ btnOptions.addEventListener('click', () => {
   mainMenu.classList.add('hidden')
   optionsMenu.classList.remove('hidden')
 })
+
+btnCredits.addEventListener('click', () => {
+  console.log("Credits Button Clicked")
+  mainMenu.classList.add('hidden')
+  creditsMenu.classList.remove('hidden')
+})
+
 btnBack.addEventListener('click', () => {
   optionsMenu.classList.add('hidden')
+  mainMenu.classList.remove('hidden')
+})
+
+btnBackCredits.addEventListener('click', () => {
+  creditsMenu.classList.add('hidden')
   mainMenu.classList.remove('hidden')
 })
 
@@ -146,12 +163,16 @@ function updateLanguage() {
   btnBack.textContent = language.back
   btnScore.textContent = language.score
   btnCredits.textContent = language.credits
+  btnBackCredits.textContent = language.back
 
   sound.textContent = language.sound
   color.textContent = language.color
-  credits.textContent = language.additional
+  additional.textContent = language.additional
+  dev.textContent = language.dev
+  testing.textContent = language.testing
   optionsTitle.textContent = language.optionsTitle
   gameOverTitle.textContent = language.gameOver
+  creditsTitle.textContent = language.credits
   btnRetry.textContent = language.retry
   btnQuit.textContent = language.quit
   finalScore.textContent = language.finalScore + score
@@ -177,7 +198,9 @@ const translations = {
     gameOver: "Game Over",
     retry: "Try Again",
     quit: "Main Menu",
-    finalScore: "Final Score: "
+    finalScore: "Final Score: ",
+    dev: "Development",
+    testing: "Testing"
   },
   ES: {
     play: "Jugar",
@@ -195,7 +218,9 @@ const translations = {
     gameOver: "Fin del Juego",
     retry: "Reintentar",
     quit: "Menú Principal",
-    finalScore: "Puntaje Final: "
+    finalScore: "Puntaje Final: ",
+    dev: "Desarrollo",
+    testing: "Pruebas"
   },
   FR: {
     play: "Jouer",
@@ -208,12 +233,14 @@ const translations = {
     sound: "Son",
     optionsTitle: "Options",
     additional: "Créé avec Canvas Api",
-    hudScore: "Score : ",
-    hudLives: "Vies : ",
+    hudScore: "Score: ",
+    hudLives: "Vies: ",
     gameOver: "Jeu Terminé",
     retry: "Réessayer",
     quit: "Menu Principal",
-    finalScore: "Score Final: "
+    finalScore: "Score Final: ",
+    dev: "Développement",
+    testing: "Test"
   }
 }
 

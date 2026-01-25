@@ -60,6 +60,35 @@ canvas {
   z-index: 30;
 }
 
+#creditsMenu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 35;
+}
+
+.credits-content {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.credit-section h3 {
+  color: #00d4ff;
+  font-size: 1rem;
+}
+
+.credit-section p {
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 #gameOverMenu {
   position: absolute;
   top: 0;
@@ -152,7 +181,7 @@ input[type="color"] {
 }
 
 .credits {
-  margin-top: 5px;
+  margin-top: 10px;
   font-size: 0.5rem;
   color: #666;
 }
