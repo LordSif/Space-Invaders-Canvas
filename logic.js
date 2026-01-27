@@ -7,6 +7,8 @@ const explosionSound = new Audio('explosion1.mp3')
 const healSound = new Audio('heal1.mp3')
 const hitSound = new Audio('hit2.mp3')
 const CombatMusic = new Audio('combat-music1.m4a')
+const hoverSound = new Audio('hover1.wav')
+const clickSound = new Audio('click1.wav')
 const livesBoard = document.getElementById('livesBoard')
 const damageOverlay = document.getElementById('damageOverlay')
 const gameContainer = document.getElementById('gameContainer')
@@ -17,9 +19,9 @@ const btnCredits = document.getElementById('btnCredits')
 const btnLanguage = document.getElementById('btnLanguage')
 const btnBack = document.getElementById('btnBack')
 const btnBackCredits = document.getElementById('btnBackCredits')
-const btnScore = document.getElementById('btnScore')
 const btnRetry = document.getElementById('btnRetry')
 const btnQuit = document.getElementById('btnQuit')
+const allButtons = document.querySelectorAll('button')
 const sound = document.getElementById('sound')
 const color = document.getElementById('color')
 const additional = document.getElementById('additional')
@@ -39,6 +41,8 @@ const gameOverSound = new Audio('game-over3.mp3')
 
 CombatMusic.loop = true
 CombatMusic.volume = 0.6
+hoverSound.volume = 0.5
+clickSound.volume = 0.5
 
 const Languages = ['EN', 'ES', 'FR']
 let LangIndex = 0
@@ -154,6 +158,18 @@ btnQuit.addEventListener('click', () => {
   resetGame()
 })
 
+allButtons.forEach(button => {
+  button.addEventListener('mouseenter', () => {
+    hoverSound.currentTime = 0
+    hoverSound.play()
+  })
+
+  button.addEventListener('click', () => {
+    clickSound.currentTime = 0
+    clickSound.play()
+  })
+})
+
 function updateLanguage() {
   const language = translations[currentLang]
 
@@ -161,7 +177,6 @@ function updateLanguage() {
   btnOptions.textContent = language.options
   btnCredits.textContent = language.credits
   btnBack.textContent = language.back
-  btnScore.textContent = language.score
   btnCredits.textContent = language.credits
   btnBackCredits.textContent = language.back
 
@@ -592,7 +607,7 @@ function update() {
   }
 
   // Boss activation logic update
-  if (score >= 100 && !boss.active && boss.health > 0) {
+  if (score >= 20 && !boss.active && boss.health > 0) {
     boss.active = true
   }
 
@@ -613,8 +628,8 @@ function update() {
         createExplosion(bullets[i].x, bullets[i].y)
         bullets.splice(i, 1)
         i--
-        hitSound.currentTime = 0
-        hitSound.play()
+        explosionSound.currentTime = 0
+        explosionSound.play()
 
         // Check if Boss Defeated
         if (boss.health <= 0) {
@@ -634,11 +649,32 @@ function update() {
     // Shoot Boss Bullets
     if (Math.random() < 0.03) {
       bossBullets.push({
-        x: boss.x + boss.width / 2 - 5,
+        x: boss.x,
         y: boss.y + boss.height,
-        width: 10,
-        height: 20,
-        speed: 6
+        width: 15,
+        height: 15,
+        speed: 6,
+        vx: -2
+      })
+    }
+    if (Math.random() < 0.03) {
+      bossBullets.push({
+        x: boss.x + boss.width - 10,
+        y: boss.y + boss.height,
+        width: 15,
+        height: 15,
+        speed: 6,
+        vx: 2
+      })
+    }
+    if (Math.random() < 0.03) {
+      bossBullets.push({
+        x: boss.x + boss.width / 2,
+        y: boss.y + boss.height,
+        width: 15,
+        height: 15,
+        speed: 6,
+        vx: 0
       })
     }
 
@@ -646,6 +682,7 @@ function update() {
     for (let i = 0; i < bossBullets.length; i++) {
       const bullet = bossBullets[i]
       bullet.y += bullet.speed
+      bullet.x += bullet.vx
       if (isColliding(player, bullet)) {
         updateLivesBoard(-1)
         hitSound.currentTime = 0
@@ -803,12 +840,13 @@ function draw() {
 
     // Mouth
     ctx.fillStyle = '#404240'
-    ctx.beginPath()
-    ctx.arc(boss.x + boss.width / 2, boss.y + boss.height, boss.width / 6, Math.PI, 0)
     ctx.strokeStyle = '#000000'
     ctx.lineWidth = 3
-    ctx.stroke()
+    ctx.beginPath()
+    ctx.arc(boss.x + boss.width / 2, boss.y + boss.height, boss.width / 6, Math.PI, 0)
+    ctx.closePath()
     ctx.fill()
+    ctx.stroke()
 
     // Eyes
     ctx.fillStyle = '#fff018'
@@ -823,11 +861,16 @@ function draw() {
     //ctx.fillRect(boss.x, boss.y, boss.width, boss.height)
 
     // bullets
-    ctx.shadowBlur = 10
-    ctx.shadowColor = 'rgb(255, 17, 108)'
-    ctx.fillStyle = 'purple'
+    ctx.fillStyle = '#00fbff'
+    ctx.shadowBlur = 15
+    ctx.shadowColor = '#05dffc'
     bossBullets.forEach(bullet => {
-      ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
+      ctx.beginPath()
+      ctx.arc(bullet.x + bullet.width / 2, bullet.y + bullet.height / 2, bullet.width / 2, 0, Math.PI * 2)
+      ctx.closePath()
+      ctx.fill()
+      //ctx.fillStyle = '#ff13eb4d'
+      //ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height)
     })
     ctx.shadowBlur = 0
 
@@ -849,7 +892,7 @@ function draw() {
 
     ctx.fillStyle = 'white'
     ctx.font = '10px Arial'
-    ctx.fillText(`Eres un manco: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
+    ctx.fillText(`Mondongo espacial: ${boss.health} / ${boss.maxHealth}`, barX + 50, barY + 8)
   }
 
   // Draw explosions
